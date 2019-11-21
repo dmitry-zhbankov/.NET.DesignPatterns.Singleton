@@ -1,26 +1,37 @@
 ﻿using System;
 
-namespace SigletonApp
+namespace SingletonApp
 {
     class Program
     {
         static void Main(string[] args)
         {
-            AppContext appContext = AppContext.GetInstance();                  
-            appContext.Database.EnsureCreated();
-            appContext.Items.Add(new DbItem() { Content = "first item" });
-            appContext.Items.Add(new DbItem() { Content = "second item" });
-            var count = appContext.SaveChanges();
-            Console.WriteLine("{0} records saved to database", count);
+            MyConnection connection = MyConnection.GetInstance();
+
+            string sqlQuery =
+            @"CREATE TABLE IF NOT EXISTS Items(
+            Id INTEGER PRIMARY KEY,
+            Content TEXT NOT NULL
+            );";
+            Console.WriteLine($"Executing query \"{sqlQuery}\"");
+            int res = connection.ExecuteQuery(sqlQuery);
+            Console.WriteLine($"N={res}; N - number of rows inserted, updated, or deleted. -1 for SELECT statements. -2 for error", res);
             Console.WriteLine();
-            Console.WriteLine("All items in database:");
-            foreach (var item in appContext.Items)
-            {
-                Console.WriteLine(" - {0}", item.Content);
-            }
+
+            sqlQuery = "INSERT INTO Items(Content) VALUES('first item')";
+            Console.WriteLine($"Executing query \"{sqlQuery}\"");
+            res = connection.ExecuteQuery(sqlQuery);
+            Console.WriteLine($"N={res}; N - number of rows inserted, updated, or deleted. -1 for SELECT statements. -2 for error", res);
             Console.WriteLine();
-            AppContext appContext2 = AppContext.GetInstance();
-            if (appContext==appContext2)
+
+            sqlQuery = "SELECT * FROM Items";
+            Console.WriteLine($"Executing query \"{sqlQuery}\"");
+            res = connection.ExecuteQuery(sqlQuery);
+            Console.WriteLine($"N={res}; N - number of rows inserted, updated, or deleted. -1 for SELECT statements. -2 for error", res);
+            Console.WriteLine();
+
+            MyConnection appContext2 = MyConnection.GetInstance();
+            if (connection == appContext2)
             {
                 Console.WriteLine("Singleton works, both variables contain the same instance.");
             }
@@ -28,17 +39,9 @@ namespace SigletonApp
             {
                 Console.WriteLine("Singleton failed, variables contain different instances.");
             }
-            appContext.Database.EnsureCreated();
-            appContext.Items.Add(new DbItem() { Content = "third item" });
-            appContext.Items.Add(new DbItem() { Content = "fourth item" });
-            count = appContext.SaveChanges();
-            Console.WriteLine("{0} records saved to database", count);
+
             Console.WriteLine();
-            Console.WriteLine("All items in database:");
-            foreach (var item in appContext.Items)
-            {
-                Console.WriteLine(" - {0}", item.Content);
-            }
+            connection.Dispose();
             Console.ReadLine();
         }
     }

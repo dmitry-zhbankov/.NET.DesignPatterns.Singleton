@@ -1,4 +1,4 @@
-﻿namespace SigletonApp
+﻿namespace SingletonApp
 {
     class DbItem
     {       
