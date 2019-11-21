@@ -1,35 +1,35 @@
 ﻿using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Data;
 
 namespace SingletonApp
 {
-    class MyConnection: IDisposable
+    class MyConnection : IDisposable
     {
-        private static MyConnection instance;        
+        private static MyConnection instance;
         private bool disposed = false;
         private static SqliteConnection connection;
         private MyConnection()
         {
             connection = new SqliteConnection(@"Data Source=mydb.db");
-            connection.Open();            
         }
         public int ExecuteQuery(string sqlExpression)
         {
-            if (instance!=null)
+            if (instance != null)
             {
-                SqliteCommand command = new SqliteCommand(sqlExpression,connection);
+                if (connection?.State == System.Data.ConnectionState.Closed)
+                {
+                    connection?.Open();
+                }
+                SqliteCommand command = new SqliteCommand(sqlExpression, connection);
                 return command.ExecuteNonQuery();
             }
             return -2;
         }
         public static MyConnection GetInstance()
         {
-            if (instance==null)
+            if (instance == null)
             {
-                instance = new MyConnection();                
+                instance = new MyConnection();
             }
             return instance;
         }
@@ -44,7 +44,7 @@ namespace SingletonApp
             {
                 if (disposing)
                 {
-                    
+
                 }
                 connection?.Close();
                 connection?.Dispose();
@@ -56,6 +56,5 @@ namespace SingletonApp
         {
             Dispose(false);
         }
-
-    }    
+    }
 }

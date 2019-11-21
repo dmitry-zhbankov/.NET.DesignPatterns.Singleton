@@ -30,8 +30,8 @@ namespace SingletonApp
             Console.WriteLine($"N={res}; N - number of rows inserted, updated, or deleted. -1 for SELECT statements. -2 for error", res);
             Console.WriteLine();
 
-            MyConnection appContext2 = MyConnection.GetInstance();
-            if (connection == appContext2)
+            MyConnection connection2 = MyConnection.GetInstance();
+            if (connection == connection2)
             {
                 Console.WriteLine("Singleton works, both variables contain the same instance.");
             }
